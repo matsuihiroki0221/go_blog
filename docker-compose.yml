@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  go:
+    build:
+      context: .
+      dockerfile: ./docker/goapp/Dockerfile
+    tty: true
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: ./src
+        target: /go/src
+    networks:
+      - go_network
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/mysql/Dockerfile
+    tty: true
+    ports:
+      - 3306:3306
+    env_file:
+      - ./docker/mysql/.env_mysql
+    volumes:
+        - type: volume
+          source: mysql_volume
+          target: /var/lib/mysql
+    networks:
+      - go_network
+
+volumes:
+  mysql_volume:
+    name: mysql_volume
+
+networks:
+  go_network:
+    external: true
